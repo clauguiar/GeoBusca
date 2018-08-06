@@ -1,0 +1,49 @@
+a {
+	text-decoration: none;
+}
+body {
+    background-color: #1659bf;
+}
+div.container{
+	height: 94px;
+	width: 960px;
+}
+#logo{
+	height: 142px;
+	width: 630px;
+}
+#tablestyle{
+	width: 100%;
+	background-color: #f6f7f8;
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-family: Arial, Helvetica, sans-serif;
+	text-align: left;
+}
+#tablestyle th{
+	background-color: #1659bf;
+	text-decoration: none;
+	padding-left: 80px;
+}
+#tablestyle th a{
+	color: #FFFFFF;
+}
+#tablestyle td{
+	padding-left: 80px;
+}
+#margin{
+	background-color: #0f4098;
+	padding: 10px;
+}
+h1.portal-title.corto{
+	height: 31px;
+	width: 630px;
+}
+span.portal-description{
+	height: 18px;
+	width: 173px;
+}
+span.portal-title-1{
+	height: 32px;
+	width: 630px;
+}

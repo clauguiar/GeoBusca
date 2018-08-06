@@ -1,0 +1,28 @@
+{% extends 'geobusca01_acre_app/basic.html' %}
+{% block content %}
+<h2 align="center">Buscar ponto</h2>
+{% if form %}
+    <!-- Form Errors -->
+    {% if form.errors %}
+        <ul class="errors">
+            {% for error in form.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!-- Display Form -->
+    <form method="post" action="../busca/">
+    {% csrf_token %}
+    {% for field in form %}
+		<div class="mydiv" style="padding: 5px; float: left;">
+            <label class="mylabel">{{ field.label_tag }}</label>
+            {{ field }}
+        </div>
+     {% endfor %}
+		<div class="button" style="padding: 5px; position: fixed; bottom: 100px; right: 100px;">
+			<button type="submit">Buscar</button>
+		</div>
+	</form>
+{% endif %}
+{% endblock %}

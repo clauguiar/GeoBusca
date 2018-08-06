@@ -1,0 +1,10 @@
+<h1>{{ ponto.point }}</h1>
+{% if rasters_contem_ponto %}
+	<ul>
+	{% for raster in rasters_contem_ponto %}
+		<li>{{ raster.location}}</li>
+	{% endfor %}
+	</ul>
+	{% else %}
+    <p>Nenhuma raster disponível para este ponto</p>
+{% endif %}

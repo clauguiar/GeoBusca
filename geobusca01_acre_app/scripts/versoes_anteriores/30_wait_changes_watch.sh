@@ -1,0 +1,68 @@
+#!/bin/bash
+#----------------------------------------------
+# Watch for changes BaseGeo application.
+#----------------------------------------------
+# Wait changes watch script.
+#----------------------------------------------
+# Author Claudia Enk de Aguiar
+#----------------------------------------------
+
+script_name=`basename "$0" .sh`; 
+	log_name="${script_name}.log"; 
+		log_path="${log_dir}${log_name}";
+
+{
+
+#---- wait for changes ---------------------
+
+echo -n "INICIANDO ESPERA POR ALTERAÇÕES de ${wait_dir} em "; date;
+echo "Script ${script_name}";
+echo;
+
+echo "Encerrar observação de diretório com Ctrl+C";
+echo;
+cd "${shp_dir}";
+inotifywait -m -r "${wait_dir}" -e delete -e create -e move | while read path action file; do 
+	echo "$path $action $file";
+	if [[ $action = *"MOVED_FROM"* || $action = *"DELETE"* ]]; then 
+		echo "DELETE FROM ${raster_index} WHERE location like '""${path}${file}""' || '%';" | psql -w -U geoadmin -d "${database}" ; 
+	elif [[ $action = *"MOVED_TO"* || $action = *"CREATE"* ]]; then 
+		pathfile="${path}${file}"; substr1="${pathfile#*/}"; lyr_name="${substr1%%/*}";
+		echo "O nome da camada é ${lyr_name}";
+		for e in ${extensions[@]}; do 
+			if [[ $action = *"ISDIR"* ]]; then 
+				echo "$file é um diretório";
+				cd "${shp_dir}";
+				find "${path}${file}/" -type f -iname "*.${e}" -exec bash -c 'nome=`basename "$0"`; echo "O nome do arquivo é ${nome}"; if grep -q -e "$nome" '"${epsg_exig_file}"'; then epsg="$(awk -v nom="$nome" -F "\"*,\"*" '"'"'$2 == nom {print $1}'"'"' '"${epsg_exig_file}"'):4674"; else epsg="4674"; fi; echo "O epsg a ser usado é ${epsg}"; gdaltindex -t_srs EPSG:4674 -lyr_name '"${lyr_name}"' tmp.shp "$0"; shp2pgsql -a -I -s ${epsg} tmp.shp '"${raster_index}"' | psql -w -d '"${database}"' -U geoadmin; rm tmp.*' "{}" \; ;
+			else
+				file_extension="${file##*.}";
+				low_file_ext="${file_extension,,}"; 
+				echo "$file é um arquivo e sua extensão é ${low_file_ex}";
+				if [ ${e} = ${low_file_ext} ]; then 
+					echo "${low_file_ext} is equal to ${e}"; 
+					pathfile="${path}${file}"; substr1="${pathfile#*/}"; lyr_name="${substr1%%/*}";
+					echo "O nome da camada é ${lyr_name}";
+					cd "${shp_dir}";
+					gdaltindex -t_srs EPSG:4674 -lyr_name "${lyr_name}" tmp.shp "${pathfile}"; 
+					nome="${file}"; 
+					echo "O nome do arquivo é ${nome}"; 
+					if grep -q -e "$nome" "${epsg_exig_file}"; then 
+						epsg="$(awk -v nom=${nome} -F \*,\* $2 == nom {print $1} ${epsg_exig_file}):4674"; 
+					else 
+						epsg="4674"; 
+					fi; 
+					echo "O epsg a ser usado é ${epsg}"; 
+					cd "${shp_dir}";
+					shp2pgsql -a -I -s "${epsg}" tmp.shp "${raster_index}" | psql -w -d "${database}" -U geoadmin; 
+					rm tmp.*; 
+				else 
+					echo "${low_file_ext} é diferente de ${e}"; 
+				fi; 
+			fi;
+		done;
+		echo "Inserir data"; 
+		${script_dir}/40_wait_changes_insert_date.sh
+	else echo "${me} encountered an unknownk situation"; 
+	fi; 
+done;
+} 2>&1 | tee -a "${log_path}"

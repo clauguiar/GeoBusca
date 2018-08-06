@@ -1,0 +1,56 @@
+{% load static %}
+{% load floppyforms %}
+<link rel="stylesheet" href="{{ STATIC_URL }} /static/jq-ui/jquery-ui.css" />
+<script type="text/javascript" src="{{ STATIC_URL }} /static/jquery-3.3.1.js"></script>
+<script src="{{ STATIC_URL }} /static/jq-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }} /static/floppyforms/js/MapWidget.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }} /static/geobusca01_acre_app/map_view.js"></script>
+<link rel="stylesheet" href="{{ STATIC_URL }} /static/geobusca01_acre_app/css/geobusca01_acre_app.css" />
+<html>
+    <head>
+		<!-- for FF, Chrome, Opera -->
+			<link rel="icon" type="image/png" href="{% static 'geobusca01_acre_app/icon/favicon-16x16.png' %}" sizes="16x16">
+			<link rel="icon" type="image/png" href="{% static 'geobusca01_acre_app/icon/favicon-32x32.png' %}" sizes="32x32">
+		<!-- for IE -->
+			<link rel="icon" type="image/x-icon" href="{% static 'geobusca01_acre_app/icon/favicon.ico' %}" >
+			<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+        <title>GeoBusca</title>
+	{% for media in form %}
+		{{ form.media }}
+	{% endfor %}
+   </head>
+    <body>	
+		 <table id="tablestyle">
+			<th>
+				<a href="http://www.ibama.gov.br/" title="Ibama">
+				<div style="width: 80px; float: left;"><img src="http://www.ibama.gov.br/images/logo.png" alt="Ibama" /></div>
+				<div style="width: 800px; text-align: justify; float: right;">Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renov&aacute;veis
+				<h1 class="portal-title corto">Ibama</h1><br>
+				Minist&eacute;rio do Meio Ambiente</div>
+				</a>
+			</th>
+			<tr>
+				<td id="margin">
+					 
+	            </td>
+            </tr>
+            <tr>
+				<td>
+					<h1 align="center"><a href="/">GeoBusca</a></h1>
+	            </td>
+            </tr>
+            <tr>
+				<td>
+		        <div class="content container">
+			        <div class="row">
+			            <div class="col-md-8">
+				            {% block content %}
+				            {% endblock %}
+			            </div>
+			        </div>
+			    </div>
+		    </td></tr>
+        </table>
+</tr>
+    </body>
+</html>

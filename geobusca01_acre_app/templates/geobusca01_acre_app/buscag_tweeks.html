@@ -1,0 +1,31 @@
+<head> {{ form.media }} </head>
+<body>
+<h1>Você está vendo a página de busca</h1>
+	  <div id="form" style="width: 600px; height: 800px;float:left; ">
+{% load widget_tweaks %}
+{% load staticfiles %}
+
+{% block content %}
+<form action="../buscag/" method="post">
+
+       {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+       {% endfor %}
+
+       {% for field in form.visible_fields %}
+	<div class="form-group" style="clear:left">
+         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+         {{ field|add_class:'form-control' }}
+         {% for error in field.errors %}
+             <span class="help-block">{{ error }}</span>
+         {% endfor %}
+       {% endfor %}
+    </div>
+       <input type="submit" value="Buscar" />
+</form>
+	  </div>
+	  
+
+{% endblock %}
+
+</body>

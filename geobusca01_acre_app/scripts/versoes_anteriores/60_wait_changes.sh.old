@@ -1,0 +1,208 @@
+#!/bin/bash
+#----------------------------------------------
+# Watch for changes BaseGeo script.
+#----------------------------------------------
+# Author Claudia Enk de Aguiar
+#----------------------------------------------
+
+#---- variables -------------------------------
+
+version="geobusca01_acre"; 
+
+geoadmin_pass=~/".pgpass"; 
+logrotate_file="/etc/logrotate.d/geobusca"; 
+me=`basename "$0"`; 
+root_pass="/root/.pgpass"; 
+script_name=`basename "$0" .sh`; 
+wait_dir="IMAGENS_SATELITE/"; 
+
+	database="${version}_db"; 
+	log_dir="/var/log/geobusca/${version}/"; 
+	log_name="${script_name}.log"; 
+	raster_index="${version}_app_raster"; 
+	site_dir="/BaseGeo/aplicativos/django_projects/${version}_site/"; 
+
+		log_path="${log_dir}${log_name}"; 
+		script_dir="${site_dir}${version}_app/scripts/"; 
+		shp_dir="${site_dir}media/"; 
+
+			epsg_exig_file="${script_dir}epsg_files_exigent.csv"; 
+
+#---- arrays ----------------------------------
+
+extensions=(tif img tiff); 
+
+#---- functions ------------------------------------
+
+insert_date () {
+	echo "update ${raster_index} set acq_date=to_date(substring(location from position('201' in location) for 8), 'YYYYMMDD') where acq_date IS NULL AND substring(location from position('201' in location) for 8) ~ '^[0-9\.]+$' AND to_date(substring(location from position('201' in location) for 8), 'YYYYMMDD') > '19700101' AND to_date(substring(location from position('201' in location) for 8), 'YYYYMMDD') < '20180101';" | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_date=to_date(substring(location from position('_20' in location)+1 for 8), 'YYYYDDMM') where acq_date IS NULL AND substring(location from position('_20' in location)+1 for 8) ~ '^[0-9\.]+$' AND to_date(substring(location from position('_20' in location)+1 for 8), 'YYYYMMDD') > '19700101' AND to_date(substring(location from position('_20' in location)+1 for 8), 'YYYYMMDD') < '20180101';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_date=to_date(substring(location from position('201' in location) for 10), 'YYYY-MM-DD') where acq_date IS NULL AND lower(substring(location from position('201' in location) for 10)) !~ '[a-z]' AND to_date(substring(location from position('201' in location) for 10), 'YYYY-MM-DD') > '19700101' AND to_date(substring(location from position('201' in location) for 10), 'YYYY-MM-DD') < '20180101';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_date=to_date(substring(location from position('200' in location)-5 for 9), 'DD.M.YYYY') where acq_date IS NULL AND lower(substring(location from position('200' in location)-5 for 9)) !~ '[a-z]' AND to_date(substring(location from position('200' in location)-5 for 9), 'DD.M.YYYY') > '19700101' AND to_date(substring(location from position('200' in location)-5 for 9), 'DD.M.YYYY') < '20180101';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_date=to_date(substring(location from '[0-9]{2}[0-9]{2}[0-9]{4}'), 'DDMMYYY') where acq_date IS NULL AND to_date(substring(location from '[0-9]{2}[0-9]{2}[0-9]{4}'), 'DDMMYYY') > to_date('01011970', 'DDMMYYY') AND to_date(substring(location from '[0-9]{2}[0-9]{2}[0-9]{4}'), 'DDMMYYY') < to_date('01012018', 'DDMMYYY');"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_date = to_date('20041113', 'YYYYMMDD') where location like 'IMAGENS_SATELITE/SPOT_5/IMAGENS SPOT - NÃO ORTORRETIFICADAS/%';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_date=to_date(substring(location from position('_19' in location)+1 for 8), 'YYYYDDMM') where acq_date IS NULL AND substring(location from position('_19' in location)+1 for 8) ~ '^[0-9\.]+$' AND to_date(substring(location from position('_19' in location)+1 for 8), 'YYYYMMDD') > '19700101' AND to_date(substring(location from position('_19' in location)+1 for 8), 'YYYYMMDD') < '20180101';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_year=extract(year from acq_date) where acq_date is not null;"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_year=cast(substring(location from position('_19' in location)+1 for 4) as int) where acq_date IS NULL AND substring(location from position('_19' in location)+1 for 4) ~ '^[0-9\.]+$' AND cast(substring(location from position('_19' in location)+1 for 4) as int) > '1970' AND cast(substring(location from position('_19' in location)+1 for 4) as int) < '2018';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_year=cast(substring(location from position('_20' in location)+1 for 4) as int) where acq_date IS NULL AND substring(location from position('_20' in location)+1 for 4) ~ '^[0-9\.]+$' AND cast(substring(location from position('_20' in location)+1 for 4) as int) > '1970' AND cast(substring(location from position('_20' in location)+1 for 4) as int) < '2018';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_year=cast(substring(location from position('19' in location) for 4) as int) where acq_date IS NULL AND substring(location from position('19' in location) for 4) ~ '^[0-9\.]+$' AND cast(substring(location from position('19' in location) for 4) as int) > '1970' AND cast(substring(location from position('19' in location) for 4) as int) < '2000';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_year=cast(substring(location from position('200' in location) for 4) as int) where acq_date IS NULL AND substring(location from position('200' in location) for 4) ~ '^[0-9\.]+$' AND cast(substring(location from position('200' in location) for 4) as int) > '1970' AND cast(substring(location from position('200' in location) for 4) as int) < '2019';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} set acq_year=cast(substring(location from position('201' in location) for 4) as int) where acq_date IS NULL AND substring(location from position('201' in location) for 4) ~ '^[0-9\.]+$' AND cast(substring(location from position('201' in location) for 4) as int) > '1970' AND cast(substring(location from position('201' in location) for 4) as int) < '2019';"  | psql -w -U geoadmin -d "${database}" ; 
+	echo "update ${raster_index} "  | psql -w -U geoadmin -d "${database}" ; 
+}
+
+#---- execution -------------------------------
+
+echo -n "INICIANDO SCRIPT ${me} em "; date;
+echo;
+
+#---- initial log configuration ---------------
+
+echo;
+echo "INICIANDO A CONFIGURAÇAO DE LOG "
+echo;
+if [ ! -d "${log_dir}" ]; then
+	echo "Criando o diretório de log";
+	mkdir -p "${log_dir}"; 
+	echo;
+fi;
+echo "Criando o arquivo de log"; 
+echo; 
+touch "${log_path}"; 
+
+if [ ! -f "${root_pass}" ]; then 
+	echo "Criando arquivo de configuração da senha para o psql para o root"; 
+	echo; 
+	touch "${root_pass}"; 
+	chmod 600 "${root_pass}"; 
+fi; 
+
+if grep -Fxq "localhost:5432:${database}:geoadmin:142536" "${root_pass}"; then 
+	echo "Permissão ao root para acessar o ${database} previamente concedida, nada a fazer."; 
+else
+	echo "Concedendo permissão ao root para acessar o ${database}"; 
+	echo; 
+	echo "localhost:5432:${database}:geoadmin:142536" | tee -a "${root_pass}"; 
+fi; 
+
+if [ ! -f "${geoadmin_pass}" ]; then 
+	echo "Criando arquivo de configuração da senha para o psql para o usuário geoadmin"; 
+	echo; 
+	touch "${geoadmin_pass}"; 
+	chmod 600 "${geoadmin_pass}"; 
+fi; 
+
+if grep -Fxq "localhost:5432:${database}:geoadmin:142536" "${geoadmin_pass}"; then 
+	echo "Permissão ao usuário geoadmin para acessar o ${database} previamente concedida, nada a fazer."; 
+else 
+	echo "Concedendo permissão ao geoadmin para acessar o ${database}"; 
+	echo; 
+	echo "localhost:5432:${database}:geoadmin:142536" | tee -a "${geoadmin_pass}"; 
+fi; 
+
+if [ -f "${logrotate_file}" ]; then
+	echo "Removendo o antigo arquivo de configuração de rotação de log";
+	echo; 
+	rm "${logrotate_file}"
+fi;
+
+# ao criar mais de um monitoramento de diretório, alterar este grupo
+echo "Criando o arquivo de configuração de rotação de log"; 
+echo; 
+cat >"${logrotate_file}" <<EOL
+	${log_dir} {
+        weekly
+        missingok
+        notifempty
+        rotate 7
+        mail claudia.aguiar@gmail.com
+        compress
+        create 644 root root
+}
+EOL
+
+cat "${logrotate_file}"
+
+echo "Configuração do log finalizada."; 
+echo; 
+echo "Dando início ao log em ${log_path}"; 
+
+#---- initial table load ----------------------
+
+{
+echo -n "INICIANDO ANÁLISE DE ${wait_dir} EM "; date;
+echo;
+
+echo "Esvaziamento e preenchimento inicial da tabela";
+echo;
+
+echo "TRUNCATE ${raster_index};" | psql -w -U geoadmin -d "${database}" ; 
+
+for e in ${extensions[@]}; do 
+	echo "Buscando por arquivos ${e}."
+	echo;
+	cd "${shp_dir}"; 
+	find "${wait_dir}" -type f -iname "*.${e}" -exec bash -c 'substr1="${0#*/}"; lyr_name="${substr1%%/*}"; echo "O nome da camada é ${lyr_name}"; nome=`basename "$0"`; echo "O nome do arquivo é ${nome}"; if grep -q -e "$nome" '"${epsg_exig_file}"'; then epsg_orig="$(awk -v nom="$nome" -F "\"*,\"*" '"'"'$2 == nom {print $1}'"'"' '"${epsg_exig_file}"')"; else epsg_orig="nenhum"; fi; echo "O epsg a ser usado é ${epsg_orig}"; gdaltindex -t_srs EPSG:4674 -lyr_name "${lyr_name}" ${epsg_orig}_tmp.shp "$0"' "{}" \; ;
+	shp2pgsql -a -I -s 4674  nenhum_tmp.shp "${raster_index}" | psql -w -d "${database}" -U geoadmin;
+	shp2pgsql -a -I -s 32722:4674 32722_tmp.shp "${raster_index}" | psql -w -d "${database}" -U geoadmin;
+	shp2pgsql -a -I -s 32721:4674 32721_tmp.shp "${raster_index}" | psql -w -d "${database}" -U geoadmin; 
+	rm *_tmp.*; 
+done; 
+insert_date; 
+
+# imagens que apresentam problemas de transformação: 
+# devem ser informadas no arquivo [site]/[app]/scripts/epsg_files_egigent.csv
+# no formato EPSG,NOME DO ARQUIVO
+
+#---- wait for changes ---------------------
+
+echo -n "INICIANDO ESPERA POR ALTERAÇÕES de ${wait_dir} em "; date;
+echo;
+
+echo "Encerrar observação de diretório com Ctrl+C";
+echo;
+inotifywait -m -r "${wait_dir}" -e delete -e create -e move | while read path action file; do 
+	echo "$path $action $file";
+	if [[ $action = *"MOVED_FROM"* || $action = *"DELETE"* ]]; then 
+		echo "DELETE FROM ${raster_index} WHERE location like '""${path}${file}""' || '%';" | psql -w -U geoadmin -d "${database}" ; 
+	elif [[ $action = *"MOVED_TO"* || $action = *"CREATE"* ]]; then 
+		pathfile="${path}${file}"; substr1="${pathfile#*/}"; lyr_name="${substr1%%/*}";
+		echo "O nome da camada é ${lyr_name}";
+		for e in ${extensions[@]}; do 
+			if [[ $action = *"ISDIR"* ]]; then 
+				echo "$file é um diretório";
+				cd "${shp_dir}";
+				find "${path}${file}/" -type f -iname "*.${e}" -exec bash -c 'nome=`basename "$0"`; echo "O nome do arquivo é ${nome}"; if grep -q -e "$nome" '"${epsg_exig_file}"'; then epsg="$(awk -v nom="$nome" -F "\"*,\"*" '"'"'$2 == nom {print $1}'"'"' '"${epsg_exig_file}"'):4674"; else epsg="4674"; fi; echo "O epsg a ser usado é ${epsg}"; gdaltindex -t_srs EPSG:4674 -lyr_name '"${lyr_name}"' tmp.shp "$0"; shp2pgsql -a -I -s ${epsg} tmp.shp '"${raster_index}"' | psql -w -d '"${database}"' -U geoadmin; rm tmp.*' "{}" \; ;
+			else
+				file_extension="${file##*.}";
+				low_file_ext="${file_extension,,}"; 
+				echo "$file é um arquivo e sua extensão é ${low_file_ex}";
+				if [ ${e} = ${low_file_ext} ]; then 
+					echo "${low_file_ext} is equal to ${e}"; 
+					pathfile="${path}${file}"; substr1="${pathfile#*/}"; lyr_name="${substr1%%/*}";
+					echo "O nome da camada é ${lyr_name}";
+					cd "${shp_dir}";
+					gdaltindex -t_srs EPSG:4674 -lyr_name "${lyr_name}" tmp.shp "${pathfile}"; 
+					nome="${file}"; 
+					echo "O nome do arquivo é ${nome}"; 
+					if grep -q -e "$nome" "${epsg_exig_file}"; then 
+						epsg="$(awk -v nom="$nome" -F "\"*,\"*" '"'"'$2 == nom {print $1}'"'"' ${epsg_exig_file}):4674"; 
+					else 
+						epsg="4674"; 
+					fi; 
+					echo "O epsg a ser usado é ${epsg}"; 
+					cd "${shp_dir}";
+					shp2pgsql -a -I -s "${epsg}" tmp.shp "${raster_index}" | psql -w -d "${database}" -U geoadmin; 
+					rm tmp.*; 
+				else 
+					echo "${low_file_ext} é diferente de ${e}"; 
+				fi; 
+			fi;
+		done;
+		insert_date; 
+	else echo "${me} encountered an unknownk situation"; 
+	fi; 
+done;
+	
+} 2>&1 | tee -a "${log_path}"
+exit 0;

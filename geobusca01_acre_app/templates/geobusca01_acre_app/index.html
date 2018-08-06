@@ -1,0 +1,26 @@
+{% extends 'geobusca01_acre_app/basic.html' %}
+{% block content %}
+<h2>Nova Busca</h2>
+<a href="{% url 'geobusca01_acre_app:busca' %}">Buscar novo ponto</a></li>
+<h2>Histórico</h2>
+{% if latest_ponto_list %}
+    <ul>
+    {% for ponto in latest_ponto_list %}
+        <li><a href="/geobusca01_acre_app/{{ ponto.gid }}/resultado/">Ver Resultado:</a>
+			<ul>
+		        <li>Data mínima: {{ ponto.req_min_date|default_if_none:"Não definida" }} Data máxima: {{ ponto.req_max_date|default_if_none:"Não definida" }}</li>
+		        <li>Geometria: {{ ponto.coll.wkt|default_if_none:"Não definida" }} (SRID:{{ ponto.coll.srid | default_if_none:"" }})</li>
+		        <li>Filtros:
+					<ul>
+						<li>{{ ponto.chaves|default_if_none:"Não definidos" }}</li>
+					</ul>
+				<li>Mapa: {{ ponto.map }}</li>
+		        </li>
+	        </ul>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nenhum ponto disponível</p>
+{% endif %}
+{% endblock %}

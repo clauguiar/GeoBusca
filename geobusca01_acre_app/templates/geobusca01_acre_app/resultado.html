@@ -1,0 +1,24 @@
+{% extends 'geobusca01_acre_app/basic.html' %}
+{% block content %}
+<h1>{{ ponto.point }}</h1>
+{% if rasters_contem_ponto %}
+{% regroup rasters_contem_ponto by satelite as satelite_list %}
+	{% for satelite in satelite_list %}
+		<b>{{ satelite.grouper }}:</b>
+			<ul>
+				{% for raster in satelite.list %}
+				<li>N° de identificação: {{ raster.gid }}</li>
+					<ul>
+						<li>Data de aquisição: {{ raster.acq_date|default_if_none:"Não definida" }};</li>
+						<li>{{ raster.src_srs }};</li>
+						<li>Localização no servidor:<br>
+						{{ raster.location }};<br>
+						<li><a href="/geobusca01_acre_app/{{ raster.gid }}/arquivo/">Download</a></li>
+					</ul>
+				{% endfor %}
+			</ul>
+	{% endfor %}
+	{% else %}
+    <p>Nenhuma raster disponível para este ponto</p>
+{% endif %}
+{% endblock %}

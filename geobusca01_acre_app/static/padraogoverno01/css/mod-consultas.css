@@ -1,0 +1,67 @@
+.mod-consultas{
+    border: solid 1px #ccc !important;
+	padding: 0px 1px 0px 1px !important;
+    border-radius: 5px !important;
+}
+
+.mod-consultas a{
+  	font-size: 12px !important;
+
+}
+
+.mod-consultas h4 {
+  font-size: 12px !important;
+  font-weight: normal !important;
+  font-family:"open_sansregular",'Open Sans',Arial,Helvetica,sans-serif !important;
+  margin:0 !important;
+  margin-left: 12px !important;
+
+}
+
+.mod-consultas h2 {
+  color: #000 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  margin: 2px 8px 0px 5px !important;
+  padding: 0px 3px 0px 3px !important;
+}
+
+.mod-consultas li {
+  border: none !important;
+  list-style-type: none !important;
+  margin-bottom: 0 !important; 
+  padding: 0px 3px 0px 3px !important;
+}
+
+.mod-consultas li:before {
+  content:"·" !important;
+  font-size: 25px !important;
+  vertical-align: middle !important;
+  line-height:20px !important;
+  padding: 0px 3px 0px 3px !important;
+}
+
+.mod-consultas ul {
+  border: none !important;
+  padding: 2px !important;
+  margin-bottom: 5px !important;
+  margin-left: 5px !important;
+  
+}
+
+.mod-consultas div.outstanding-header{
+  border-top:0px;
+  min-height: 5px !important;
+  background-color: #fff !important;
+  margin:0 0 5px 0 !important;
+  padding-bottom:3px;
+  position:relative;
+  padding-top:4px
+}
+
+.linha-consulta{
+    margin: 5px 0px 5px 0px !important;
+    border-bottom: 0px solid #ccc !important;
+    border-top: 1px solid #ccc !important;
+  	width: 100% !important;
+}
